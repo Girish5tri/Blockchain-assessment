@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  node1:
+    image: ethereum/client-go:stable
+    command: >
+      --datadir=/data
+      --networkid=1515
+      --nodiscover
+      --syncmode=full
+      --mine
+      --miner.threads=1
+      --http
+      --http.addr=0.0.0.0
+      --http.port=8545
+      --http.api=eth,net,web3
+      --ws
+      --ws.addr=0.0.0.0
+      --ws.port=8546
+      --ws.api=eth,net,web3
+    volumes:
+      - node1_data:/data
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+    networks:
+      - blockchain_network
+
+  node2:
+    image: ethereum/client-go:stable
+    command: >
+      --datadir=/data
+      --networkid=1515
+      --nodiscover
+      --syncmode=full
+    volumes:
+      - node2_data:/data
+    networks:
+      - blockchain_network
+
+  node3:
+    image: ethereum/client-go:stable
+    command: >
+      --datadir=/data
+      --networkid=1515
+      --nodiscover
+      --syncmode=full
+    volumes:
+      - node3_data:/data
+    networks:
+      - blockchain_network
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - prometheus_data:/etc/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - blockchain_network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - blockchain_network
+
+volumes:
+  node1_data:
+  node2_data:
+  node3_data:
+  prometheus_data:
+
+networks:
+  blockchain_network:
+    driver: bridge
